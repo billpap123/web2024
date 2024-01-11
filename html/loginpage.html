@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login Page</title>
+    <link rel="stylesheet" href="../css/loginstylesheet.css">
+    
+    
+    <script>
+        function validateLogin() {
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+
+           
+            // kodikos kai onoma xristi = me admin an einai lathos tote kanw redirect sto arxiko login page
+            if (username === 'admin' && password === 'admin') {
+                //swstos kwdikos kai username are proxorame sto index to admin 
+                window.location.href = 'adm.html';
+            } else {
+                //lathos kodikos kai username
+                alert('Invalid login. Please try again.');
+                // girnaw pisw sto loginpage
+                window.location.href = 'loginpage.html';
+            }
+        }
+    </script>
+</head>
+<body>
+
+<div class="login-container">
+    <h1>Login</h1>
+    <form>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Your Username" required="required">
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Your Password" required="required">
+
+        <button type="button" onclick="validateLogin()">Login</button> <!--kathe fora p pataw to koumpi kalw tin validate gia auto kai einai onclick-->
+    </form>
+</div>
+
+</body>
+</html>

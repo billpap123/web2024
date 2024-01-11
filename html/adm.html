@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/admin_stylesheet.css"> <!-- Updated CSS path -->
+
+    <script>
+        function logout(){
+            sessionStorage.clear(); //clear session data
+            localStorage.clear();
+            window.location.href = 'loginpage.html';
+        }
+
+        function welcome(){
+            window.location.href = 'adm.html';
+        }
+
+        function map(){
+            window.location.href = 'map.html';
+        }
+
+        function settings(){
+            window.location.href = 'settings.html';
+        }
+
+        function products(){
+            window.location.href = 'products.html';
+        }
+
+        function posts(){
+            window.location.href = 'posts.html';
+        }
+
+        function users(){
+            window.location.href = 'users.html';
+        }
+    </script>
+</head>
+<body>
+
+<header>
+    <h1>Admin Dashboard</h1>
+</header>
+
+<nav>
+    <a href="welcome.html" onclick="welcome()">Home</a>
+    <a href="users.html" onclick="users()">Users</a>
+    <a href="products.html" onclick='products()'>Products</a>
+    <a href="settings.html" onclick="settings()">Settings</a>
+    <a href="posts.html" onclick="posts()">Posts</a>
+    <a href="map.html" onclick="map()">Map</a>
+</nav>
+
+<section>
+    <h2>Welcome</h2>
+</section>
+
+<footer>
+    &copy; 2023 Admin Dashboard <br> <br> <br>
+    <button onclick="logout()">Log Out</button>
+</footer>
+
+</body>
+</html>

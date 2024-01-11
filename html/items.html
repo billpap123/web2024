@@ -1,0 +1,196 @@
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Display Tables</title>
+        <style>
+            /* Add your table styles here */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+
+            h2 {
+                margin-top: 30px;
+            }
+
+            .process-button {
+                background-color: #4CAF50;
+                color: white;
+                padding: 5px 10px;
+                border: none;
+                cursor: pointer;
+            }
+
+            .process-button:hover {
+                background-color: #45a049;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <h2>Items Table</h2>
+        <table id="itemsTable">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be dynamically added here -->
+            </tbody>
+        </table>
+
+        <h2>Item Categories Table</h2>
+        <table id="categoriesTable">
+            <thead>
+                <tr>
+                    <th>Category ID</th>
+                    <th>Category Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be dynamically added here -->
+            </tbody>
+        </table>
+
+        <h2>Item Details Table</h2>
+        <table id="detailsTable">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Detail Name</th>
+                    <th>Detail Value</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be dynamically added here -->
+            </tbody>
+        </table>
+
+    
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Fetch and display data for the items table
+                fetchTableData('items', 'itemsTable');
+        
+                // Fetch and display data for the item_categories table
+                fetchTableData('item_categories', 'categoriesTable');
+        
+                // Fetch and display data for the item_details table
+                fetchTableData('item_details', 'detailsTable');
+            });
+        
+            function fetchTableData(tableName, tableId) {
+                const url = `../php/get_data.php?table=${tableName.toLowerCase()}`;
+        
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Server Response:', data);
+        
+                        // Check if the server response contains an error
+                        if (data.error) {
+                            console.error(`Error fetching ${tableId} data: ${data.error}`);
+                            return;
+                        }
+        
+                        displayTableData(data, tableId);
+                    })
+                    .catch(error => {
+                        console.error(`Error fetching ${tableName} data:`, error);
+                    });
+            }
+        
+            function displayTableData(data, tableId) {
+                const tableBody = document.querySelector(`#${tableId} tbody`);
+                tableBody.innerHTML = '';
+        
+                // Check if the server response contains an error
+                if (data.error) {
+                    console.error(`Error fetching ${tableId} data: ${data.error}`);
+                    return;
+                }
+        
+                data.forEach(row => {
+                    const newRow = tableBody.insertRow(-1);
+        
+                    // Adjust the cell creation based on your table structure
+                    Object.keys(row).forEach(key => {
+                        const cell = newRow.insertCell();
+                        cell.textContent = row[key];
+                    });
+        
+                    // Add process button and attach event listener
+                    const actionCell = newRow.insertCell();
+                    const processButton = document.createElement('button');
+                    processButton.textContent = 'Process';
+                    processButton.className = 'process-button';
+                    processButton.addEventListener('click', function () {
+                        processRow(row, tableId);
+                    });
+                    actionCell.appendChild(processButton);
+                });
+            }
+        
+            function processRow(row, tableId) {
+                // Implement your processing logic here
+                console.log('Processing row:', row);
+        
+                // You can update the row values and then send them to the server for updating the database
+                updateDatabase(row, tableId);
+            }
+            function updateDatabase(row, tableId) {
+    // Implement your logic to update the database
+    console.log('Updating database:', row);
+    console.log('Table Name:', tableId);
+
+
+    // Send the updated data to the server using fetch or another method
+    const updateUrl = '../php/update_data.php';
+
+    fetch(updateUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'updateData',
+            tableName: tableId,  // Remove toLowerCase()
+            data: row,
+        }),
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log('Server Response:', result);  // Log the server response
+        // ... rest of the code
+    })
+    .catch(error => {
+        console.error('Error updating database:', error);
+    });
+}
+        </script>
+        
+    </body>
+
+    </html>

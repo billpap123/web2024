@@ -1,0 +1,79 @@
+/* Style for the category checkboxes */
+#categoryFilter {
+    display: grid;
+    grid-template-columns: repeat(5, 2fr);
+    grid-gap: 10px;
+    margin-bottom: 10px;
+}
+
+#categoryFilter option {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+    cursor: pointer;
+}
+
+#categoryFilter option:hover {
+    background-color: #f5f5f5;
+}
+
+/* Additional styles for a cleaner look */
+#categoryFilter {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+#items{
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+/* Style for the table */
+#itemsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#itemsTable th, #itemsTable td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+/* Style for the message container */
+#messageContainer {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+/* Style for the upload form */
+#uploadForm {
+    margin-top: 10px;
+}
+
+/* Style for the refresh inventory button */
+button {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+a {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: aliceblue;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}

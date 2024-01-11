@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+</head>
+<body>
+
+<h1>Welcome, Admin!</h1>
+
+<!-- Display existing users -->
+<h2>Existing Users</h2>
+<table id="userTable" border="1">
+    <tr>
+        <th>Username</th>
+    </tr>
+</table>
+
+<!-- Form for creating user accounts -->
+<h2>Create User Account</h2>
+<form id="createUserForm">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="button" onclick="createUser()">Create User</button>
+</form>
+
+<script>
+    // Function to fetch and display existing users
+    function fetchExistingUsers() {
+        fetch('../php/get_users.php')
+            .then(response => response.json())
+            .then(data => {
+                // Display existing users in the user table
+                const userTable = document.getElementById('userTable');
+                userTable.innerHTML = '<tr><th>Username</th></tr>'; // Clear existing table header
+
+                data.users.forEach(user => {
+                    const row = userTable.insertRow(-1);
+                    const cell = row.insertCell(0);
+                    cell.textContent = user.username;
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching users:', error);
+            });
+    }
+
+    // Fetch existing users when the page is loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        fetchExistingUsers();
+    });
+
+    // Function to create a new user
+    function createUser() {
+        var username = document.getElementById('username').value;
+        var password = document.getElementById('password').value;
+
+        // Check if username and password are not empty
+        if (username.trim() === '' || password.trim() === '') {
+            alert('Username and password cannot be empty');
+            return;
+        }
+
+        // Create FormData object to send data in the body of the POST request
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
+
+        // Make a POST request using fetch
+        fetch('../php/create_user.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle the response data
+                console.log(data);
+
+                // If the user was created successfully, fetch and display updated user list
+                fetchExistingUsers();
+            })
+            .catch(error => {
+                console.error('Error creating user:', error);
+                showMessage('Error creating user. Please try again.');
+            });
+    }
+
+    // Function to show messages
+    function showMessage(message) {
+        alert(message);
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "category_name": "Electronics"
+    },
+    {
+      "id": 2,
+      "category_name": "Clothing"
+    }
+  ],
+  "items": [
+    {
+      "id": 101,
+      "name": "Laptop",
+      "category": 1,
+      "details": [
+        {
+          "detail_name": "Brand",
+          "detail_value": "ABC"
+        },
+        {
+          "detail_name": "RAM",
+          "detail_value": "8GB"
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "name": "T-shirt",
+      "category": 2,
+      "details": [
+        {
+          "detail_name": "Size",
+          "detail_value": "Medium"
+        },
+        {
+          "detail_name": "Color",
+          "detail_value": "Blue"
+        }
+      ]
+    }
+  ]
+}

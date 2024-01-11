@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Page</title>
+    <link rel="stylesheet" type="text/css" href="../css/prod_stylesheet.css">
+    <style>
+        /* Add your checkbox styles here */
+        #categoryCheckboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        label.checkbox {
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+<h2 id="items"><a href="items.html" onclick="items()">Items Currently On Database</a>
+</h2>
+
+    <h2>Available Products</h2>
+
+    <!-- Add checkboxes for categories -->
+    <div id="categoryCheckboxes"></div>
+
+    <table id="itemsTable" border="1">
+        <tr>
+            <th>Item Name</th>
+            <th>Quantity</th>
+        </tr>
+    </table>
+
+    <!-- Display result -->
+    <div id="result"></div>
+
+    <!-- Message container -->
+    <div id="messageContainer"></div>
+
+    <!-- Form for uploading my JSON file to refresh the storage inventory -->
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="jsonFileInput">Choose a JSON file:</label>
+        <input type="file" name="jsonFile" id="jsonFileInput" accept=".json">
+        <br>
+        <input type="button" value="Upload JSON" onclick="handleFileUpload()">
+    </form>
+
+    <br> <br> <br>
+
+
+    <!-- Refresh Inventory button -->
+    <button onclick="refreshInventory()">Refresh Inventory</button>
+
+    <script>
+        //On Click Link to DB Items
+        function items() {
+            window.location.href = 'items.html';
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Populate categories as checkboxes
+            populateCategories();
+
+            // Fetch and display existing products when the page is loaded
+            fetchExistingProducts([]);
+        });
+
+        // Function to fetch and display existing products
+        function fetchExistingProducts(categories) {
+            const url = `../php/get_prod.php?categories=${encodeURIComponent(categories.join(','))}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    displayProducts(data.items);
+                })
+                .catch(error => {
+                    console.error('Error fetching products:', error);
+                });
+        }
+
+        // Function to display products in the items table
+        function displayProducts(items) {
+            const itemsTable = document.getElementById('itemsTable');
+            itemsTable.innerHTML = '<tr><th>Item Name</th><th>Quantity</th></tr>';
+
+            items.forEach(item => {
+                const row = itemsTable.insertRow(-1);
+                const nameCell = row.insertCell(0);
+                const quantityCell = row.insertCell(1);
+                nameCell.textContent = item.name;
+                quantityCell.textContent = item.quantity;
+            });
+            console.log('Displaying products:', items);
+        }
+
+        // Function to refresh inventory
+        function refreshInventory() {
+            // Use fetch to call load_items.php
+            fetch('../php/load_items.php')
+                .then(response => response.json())
+                .then(data => {
+                    // Handle the response
+                    console.log(data);
+
+                    if (data.message) {
+                        showMessage(data.message);
+                    } else if (data.error) {
+                        showMessage(data.error);
+                    }
+
+                    const categoryCheckboxes = document.querySelectorAll('input[name="category"]');
+                    const selectedCategories = Array.from(categoryCheckboxes)
+                        .filter(checkbox => checkbox.checked)
+                        .map(checkbox => checkbox.value);
+
+                    fetchExistingProducts(selectedCategories);
+                })
+                .catch(error => {
+                    console.error('Error refreshing inventory:', error);
+                    showMessage('Error refreshing inventory. Please try again.');
+                });
+        }
+
+        // Function to show messages
+        function showMessage(message) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.textContent = message;
+
+            setTimeout(() => {
+                messageContainer.textContent = '';
+            }, 3000);
+        }
+
+        // Function to populate categories as checkboxes
+        function populateCategories() {
+            fetch('../php/get_categories.php')
+                .then(response => response.json())
+                .then(data => {
+                    const categoryCheckboxes = document.getElementById('categoryCheckboxes');
+
+                    // Populate checkboxes with fetched categories
+                    data.forEach(category => {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.name = 'category';
+                        checkbox.value = category.category_id;
+                        checkbox.addEventListener('change', () => filterProducts());
+
+                        const label = document.createElement('label');
+                        label.className = 'checkbox';
+                        label.appendChild(checkbox);
+                        label.appendChild(document.createTextNode(category.category_name));
+
+                        categoryCheckboxes.appendChild(label);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching categories:', error);
+                });
+        }
+
+        // Function to handle category filtering
+        function filterProducts() {
+            const categoryCheckboxes = document.querySelectorAll('input[name="category"]');
+            const selectedCategories = Array.from(categoryCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+
+            fetchExistingProducts(selectedCategories);
+        }
+
+        // Function to handle file input change for uploading JSON
+        function handleFileUpload() {
+            const fileInput = document.getElementById('jsonFileInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const formData = new FormData();
+                formData.append('jsonFile', file);
+
+                fetch('../php/upload_json.php', {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            showMessage(data.message);
+                        } else if (data.error) {
+                            showMessage(data.error);
+                        } else {
+                            showMessage('JSON file uploaded successfully!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error uploading JSON file:', error);
+                        showMessage('Error uploading JSON file. Please try again.');
+                    });
+            } else {
+                showMessage('Invalid file upload or missing file.');
+            }
+        }
+    </script>
+
+</body>
+
+</html>
