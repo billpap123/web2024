@@ -22,12 +22,15 @@ if ($jsonData === false) {
 $data = json_decode($jsonData, true);
 
 try {
-    // Begin transaction
-    mysqli_begin_transaction($con);
+    $con->begin_transaction(); // Begin transaction
 
     // Insert data into the item_categories table
     $insertItemCategoryQuery = "INSERT INTO item_categories (category_id, category_name) VALUES (?, ?)";
     $stmtCategory = $con->prepare($insertItemCategoryQuery);
+
+    if (!$stmtCategory) {
+        die($con->error); // Output detailed error message
+    }
 
     foreach ($data['categories'] as $category) {
         $stmtCategory->bind_param("is", $category['id'], $category['category_name']);
@@ -36,37 +39,55 @@ try {
 
     $stmtCategory->close();
 
-    // Insert data into the items and item_details tables
     $insertItemQuery = "INSERT INTO items (item_id, name, category) VALUES (?, ?, ?)";
-    $insertItemDetailQuery = "INSERT INTO item_details (it_id, detail_name, detail_value) VALUES (?, ?, ?)";
-
+    $insertItemDetailQuery = "INSERT INTO item_details (item_id, detail_name, detail_value) VALUES (?, ?, ?)";
+    
     $stmtItem = $con->prepare($insertItemQuery);
-    $stmtDetail = $con->prepare($insertItemDetailQuery);
 
+    if (!$stmtItem) {
+        die($con->error); // Output detailed error message
+    }
+
+    $stmtDetail = $con->prepare($insertItemDetailQuery);
+    
+    if (!$stmtDetail) {
+        die($con->error); // Output detailed error message
+    }
+    
     foreach ($data['items'] as $item) {
         $stmtItem->bind_param("isi", $item['id'], $item['name'], $item['category']);
         $stmtItem->execute();
-
+    
         foreach ($item['details'] as $detail) {
+            // Check if detail_value is null, and skip to the next iteration
+            if ($detail['detail_value'] === null) {
+                continue;
+            }
+        
             $stmtDetail->bind_param("iss", $item['id'], $detail['detail_name'], $detail['detail_value']);
-            $stmtDetail->execute();
+            if (!$stmtDetail->execute()) {
+                die($con->error); // Output detailed error message
+            }
         }
     }
 
     // Commit transaction
-    mysqli_commit($con);
-
+    $con->commit();
+    
     echo json_encode(['message' => 'Data inserted successfully']);
+    
 } catch (Exception $e) {
     // Rollback changes on error
-    mysqli_rollback($con);
+    $con->rollback();
 
     echo json_encode(['error' => 'An error occurred: ' . $e->getMessage()]);
     // Log the error to a file or database for further investigation
+    error_log('PHP Error: ' . $e->getMessage());
 } finally {
     // Close statements and the database connection
     $stmtItem->close();
     $stmtDetail->close();
     $con->close();
 }
+
 ?>

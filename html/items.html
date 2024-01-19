@@ -1,196 +1,254 @@
-    <!DOCTYPE html>
-    <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Display Tables</title>
-        <style>
-            /* Add your table styles here */
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Tables</title>
+    <link rel="stylesheet" href="../css/items_stylesheet.css">
+</head>
 
-            th, td {
-                border: 1px solid #ddd;
-                padding: 8px;
-                text-align: left;
-            }
+<body>
 
-            th {
-                background-color: #f2f2f2;
-            }
+    <form action="../php/update_process.php" method="post" id="updateForm">
+        <label for="item_id">Item ID:</label>
+        <input type="text" name="item_id" id="item_id" required oninput="autocompleteCategoryID()">
 
-            h2 {
-                margin-top: 30px;
-            }
+        <label for="name">Name:</label>
+        <input type="text" name="name">
 
-            .process-button {
-                background-color: #4CAF50;
-                color: white;
-                padding: 5px 10px;
-                border: none;
-                cursor: pointer;
-            }
+        <label for="category_id">Category ID:</label>
+        <input type="number" name="category_id" id="category_id" required>
 
-            .process-button:hover {
-                background-color: #45a049;
-            }
-        </style>
-    </head>
+        <label for="quantity">Quantity:</label>
+        <input type="text" name="quantity">
 
-    <body>
+        <label for="category_name">Category Name:</label>
+        <input type="text" name="category_name">
 
-        <h2>Items Table</h2>
-        <table id="itemsTable">
-            <thead>
-                <tr>
-                    <th>Item ID</th>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Quantity</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Data will be dynamically added here -->
-            </tbody>
-        </table>
+        <label for="detail_name">Detail Name:</label>
+        <input type="text" name="detail_name">
 
-        <h2>Item Categories Table</h2>
-        <table id="categoriesTable">
-            <thead>
-                <tr>
-                    <th>Category ID</th>
-                    <th>Category Name</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Data will be dynamically added here -->
-            </tbody>
-        </table>
+        <label for="detail_value">Detail Value:</label>
+        <input type="text" name="detail_value">
 
-        <h2>Item Details Table</h2>
-        <table id="detailsTable">
-            <thead>
-                <tr>
-                    <th>Item ID</th>
-                    <th>Detail Name</th>
-                    <th>Detail Value</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Data will be dynamically added here -->
-            </tbody>
-        </table>
+        <label for="detail_id">Detail ID:</label>
+        <input type="text" name="detail_id">
 
-    
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                // Fetch and display data for the items table
-                fetchTableData('items', 'itemsTable');
-        
-                // Fetch and display data for the item_categories table
-                fetchTableData('item_categories', 'categoriesTable');
-        
-                // Fetch and display data for the item_details table
-                fetchTableData('item_details', 'detailsTable');
-            });
-        
-            function fetchTableData(tableName, tableId) {
-                const url = `../php/get_data.php?table=${tableName.toLowerCase()}`;
-        
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Server Response:', data);
-        
-                        // Check if the server response contains an error
-                        if (data.error) {
-                            console.error(`Error fetching ${tableId} data: ${data.error}`);
-                            return;
-                        }
-        
-                        displayTableData(data, tableId);
-                    })
-                    .catch(error => {
-                        console.error(`Error fetching ${tableName} data:`, error);
-                    });
-            }
-        
-            function displayTableData(data, tableId) {
-                const tableBody = document.querySelector(`#${tableId} tbody`);
-                tableBody.innerHTML = '';
-        
-                // Check if the server response contains an error
-                if (data.error) {
-                    console.error(`Error fetching ${tableId} data: ${data.error}`);
-                    return;
+        <!-- Include additional fields for other details if needed -->
+
+        <input type="submit" value="Update Item">
+        <div id="responseMessage"></div>
+    </form>
+
+    <script>
+        function autocompleteCategoryID() {
+            var item_id = document.getElementById('item_id').value;
+
+            // Make an AJAX request to get the corresponding category_id
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '../php/get_category_id.php?item_id=' + item_id, true);
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    console.log('Response Text:', xhr.responseText); // Log entire response text
+                    var category_id = document.getElementById('category_id');
+                    category_id.value = xhr.responseText;
+                    console.log('Autocompleted category_id:', xhr.responseText);
+                } else {
+                    console.error('Request failed with status:', xhr.status);
                 }
-        
-                data.forEach(row => {
-                    const newRow = tableBody.insertRow(-1);
-        
-                    // Adjust the cell creation based on your table structure
-                    Object.keys(row).forEach(key => {
-                        const cell = newRow.insertCell();
-                        cell.textContent = row[key];
-                    });
-        
-                    // Add process button and attach event listener
-                    const actionCell = newRow.insertCell();
-                    const processButton = document.createElement('button');
-                    processButton.textContent = 'Process';
-                    processButton.className = 'process-button';
-                    processButton.addEventListener('click', function () {
-                        processRow(row, tableId);
-                    });
-                    actionCell.appendChild(processButton);
+            };
+
+            var formData = new FormData(updateForm);
+            var serializedData = Array.from(formData).map(pair => encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1])).join('&');
+            xhr.send(serializedData);
+        }
+
+        function submitForm(event) {
+            event.preventDefault();  // Prevent the default form submission
+            var updateForm = document.getElementById('updateForm');
+            var formData = new FormData(updateForm);
+
+            // Serialize form data manually
+            var serializedData = Array.from(formData).map(pair => encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1])).join('&');
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '../php/update_process.php', true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        document.getElementById('responseMessage').innerHTML = response.message;
+                    } catch (error) {
+                        console.error("Error parsing JSON:", error);
+                    }
+                } else {
+                    console.error("Request failed with status:", xhr.status);
+                }
+            };
+
+            xhr.send(serializedData);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var updateForm = document.getElementById('updateForm');
+
+            updateForm.addEventListener('submit', function (event) {
+                submitForm(event);
+            });
+
+            fetchTableData('items', 'itemsTable');
+            fetchTableData('item_categories', 'categoriesTable');
+            fetchTableData('item_details', 'detailsTable');
+        });
+
+        function fetchTableData(tableName, tableId) {
+            const url = `../php/get_data.php?table=${tableName.toLowerCase()}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(`Server Response for ${tableId}:`, data);
+
+                    // Check if the server response contains an error
+                    if (data.error) {
+                        console.error(`Error fetching ${tableId} data: ${data.error}`);
+                        return;
+                    }
+
+                    displayTableData(data, tableId);
+                })
+                .catch(error => {
+                    console.error(`Error fetching ${tableName} data:`, error);
                 });
+        }
+
+        function displayTableData(data, tableId) {
+            const tableBody = document.querySelector(`#${tableId} tbody`);
+            tableBody.innerHTML = '';
+
+            // Check if the server response contains an error
+            if (data.error) {
+                console.error(`Error fetching ${tableId} data: ${data.error}`);
+                return;
             }
-        
-            function processRow(row, tableId) {
-                // Implement your processing logic here
-                console.log('Processing row:', row);
-        
-                // You can update the row values and then send them to the server for updating the database
-                updateDatabase(row, tableId);
+
+            data.forEach(row => {
+                const newRow = tableBody.insertRow(-1);
+
+                // Adjust the cell creation based on your table structure
+                Object.keys(row).forEach(key => {
+                    const cell = newRow.insertCell();
+                    cell.textContent = row[key];
+                });
+            });
+        }
+    </script>
+
+    <h2>Items Table</h2>
+    <table id="itemsTable">
+        <thead>
+            <tr>
+                <th>Item ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <h2>Item Categories Table</h2>
+    <table id="categoriesTable">
+        <thead>
+            <tr>
+                <th>Category ID</th>
+                <th>Category Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <h2>Item Details Table</h2>
+    <table id="detailsTable">
+        <thead>
+            <tr>
+                <th>Detail ID</th>
+                <th>Item ID</th>
+                <th>Detail Name</th>
+                <th>Detail Value</th> <!-- Added Detail ID -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be dynamically added here -->
+        </tbody>
+    </table>
+
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Fetch and display data for the items table
+            fetchTableData('items', 'itemsTable');
+
+            // Fetch and display data for the item_categories table
+            fetchTableData('item_categories', 'categoriesTable');
+
+            // Fetch and display data for the item_details table
+            fetchTableData('item_details', 'detailsTable');
+        });
+
+        function fetchTableData(tableName, tableId) {
+            const url = `../php/get_data.php?table=${tableName.toLowerCase()}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(`Server Response for ${tableId}:`, data);
+
+                    // Check if the server response contains an error
+                    if (data.error) {
+                        console.error(`Error fetching ${tableId} data: ${data.error}`);
+                        return;
+                    }
+
+                    displayTableData(data, tableId);
+                })
+                .catch(error => {
+                    console.error(`Error fetching ${tableName} data:`, error);
+                });
+        }
+
+        function displayTableData(data, tableId) {
+            const tableBody = document.querySelector(`#${tableId} tbody`);
+            tableBody.innerHTML = '';
+
+            // Check if the server response contains an error
+            if (data.error) {
+                console.error(`Error fetching ${tableId} data: ${data.error}`);
+                return;
             }
-            function updateDatabase(row, tableId) {
-    // Implement your logic to update the database
-    console.log('Updating database:', row);
-    console.log('Table Name:', tableId);
 
+            data.forEach(row => {
+                const newRow = tableBody.insertRow(-1);
 
-    // Send the updated data to the server using fetch or another method
-    const updateUrl = '../php/update_data.php';
+                // Adjust the cell creation based on your table structure
+                Object.keys(row).forEach(key => {
+                    const cell = newRow.insertCell();
+                    cell.textContent = row[key];
+                });
+            });
+        }
+    </script>
 
-    fetch(updateUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            action: 'updateData',
-            tableName: tableId,  // Remove toLowerCase()
-            data: row,
-        }),
-    })
-    .then(response => response.json())
-    .then(result => {
-        console.log('Server Response:', result);  // Log the server response
-        // ... rest of the code
-    })
-    .catch(error => {
-        console.error('Error updating database:', error);
-    });
-}
-        </script>
-        
-    </body>
+</body>
 
-    </html>
+</html>

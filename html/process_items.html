@@ -1,0 +1,96 @@
+<!-- update_form.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Items</title>
+</head>
+
+<body>
+    <h2>Update Item Information</h2>
+    <form id="updateForm">
+        <label for="item_id">Item ID:</label>
+        <input type="text" name="item_id" required>
+
+        <label for="name">Name:</label>
+        <input type="text" name="name">
+
+        <label for="category">Category:</label>
+        <select name="category" id="categorySelect">
+            <!-- Categories will be dynamically loaded here using JavaScript -->
+        </select>
+
+        <label for="quantity">Quantity:</label>
+        <input type="text" name="quantity">
+
+        <!-- Additional fields for item_details table -->
+        <label for="detail_name">Detail Name:</label>
+        <input type="text" name="detail_name">
+
+        <label for="detail_value">Detail Value:</label>
+        <input type="text" name="detail_value">
+
+        <input type="button" value="Update Item" onclick="submitForm()">
+
+        <script>
+            function submitForm() {
+                event.preventDefault();  // Prevent the default form submission behavior
+
+                var updateForm = document.getElementById('updateForm');
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '../php/update_process.php', true);
+                xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            alert(response.message); // Display the response message in a popup
+                        } catch (error) {
+                            console.error("Error parsing JSON:", error);
+                        }
+                    } else {
+                        console.error("Request failed with status:", xhr.status);
+                    }
+                };
+
+                var formData = new FormData(updateForm);
+                xhr.send(formData);
+            }
+
+            // Fetch and display categories dynamically using JavaScript
+            window.onload = function () {
+                var categorySelect = document.getElementById('categorySelect');
+                var xhr = new XMLHttpRequest();
+
+                xhr.open('GET', "../php/get_categories.php", true);
+
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        try {
+                            var categories = JSON.parse(xhr.responseText);
+
+                            categories.forEach(function (category) {
+                                var option = document.createElement('option');
+                                option.value = category.category_id;
+                                option.text = category.category_name;
+                                categorySelect.add(option);
+                            });
+                        } catch (error) {
+                            console.error("Error parsing JSON:", error);
+                        }
+                    } else {
+                        console.error("Request failed with status:", xhr.status);
+                    }
+                };
+
+                xhr.send();
+            };
+        </script>
+    </form>
+</body>
+
+</html>

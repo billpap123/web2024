@@ -51,7 +51,7 @@ function fetchItems() {
 function fetchCategories() {
     global $con;
 
-    $query = "SELECT category_name FROM item_categories";
+    $query = "SELECT category_id, category_name FROM item_categories";
     $result = $con->query($query);
 
     if ($result) {
